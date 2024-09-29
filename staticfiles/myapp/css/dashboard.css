@@ -1,0 +1,165 @@
+/* Body and wrapper setup */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background-image: url("myapp\static\myapp\img\back_1.jpg"); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #e0e0e0; /* Light text color for dark theme */
+}
+
+/* Dashboard structure */
+.dashboard-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    max-width: 1200px;
+    background-color: rgba(50, 50, 50, 0.8); /* Dark semi-transparent background for content */
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.7);
+}
+
+/* Dashboard header */
+.dashboard-header {
+    text-align: center;
+    padding: 20px;
+}
+
+.dashboard-header h1 {
+    font-size: 32px;
+    color: #e0e0e0; /* Light text color */
+    margin: 0;
+}
+
+/* Dashboard content and cards */
+.dashboard-content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+/* Card styles */
+.card {
+    background-color: #333; /* Dark background for cards */
+    border-radius: 15px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    flex: 1;
+    text-align: center;
+    color: #e0e0e0; /* Light text color for cards */
+}
+
+/* Temperature card */
+.temperature-card {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.temperature {
+    font-size: 60px;
+    color: #ff4081; /* Bright color for temperature */
+    font-weight: 600;
+}
+
+/* Weather card */
+.weather-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.weather-icon {
+    width: 80px;
+    height: 80px;
+}
+
+.weather-description {
+    font-size: 24px;
+    color: #64b5f6; /* Bright color for weather description */
+    margin-top: 10px;
+}
+
+/* Info cards */
+.info-cards {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.info-card {
+    flex: 1;
+    font-size: 18px;
+    color: #e0e0e0; /* Light text color for info cards */
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .dashboard-content {
+        flex-direction: column;
+    }
+
+    .temperature-card {
+        font-size: 50px;
+    }
+
+    .weather-icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .info-cards {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* Navbar styles */
+.navbar {
+    width: 100%;
+    background-color: #222; /* Dark background for navbar */
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between; /* Spreads items across the navbar */
+    padding: 0 20px; /* Add padding to the sides for spacing */
+}
+
+.navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    width: 100%; /* Ensure ul takes full width */
+    justify-content: flex-start; /* Align menu items to the left */
+}
+
+.navbar ul li {
+    padding: 14px 20px;
+    color: #e0e0e0; /* Light text color for navbar */
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.navbar ul li a {
+    color: #e0e0e0; /* Light text color for navbar links */
+    text-decoration: none;
+}
+
+.navbar ul li a:hover {
+    background-color: #575757;
+    color: #fff;
+    border-radius: 4px;
+}

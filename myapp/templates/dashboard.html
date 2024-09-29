@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'myapp/css/dashboard.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"> 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Add Chart.js -->
+    <script src="{% static 'myapp/js/scripts.js' %}"></script>
+    <script>
+        function fetchWeatherData() {
+            fetch("{% url 'ajax_get_data' %}")
+            .then(response => response.json())
+            .then(data => {
+                updateTemperature(data.temperature);
+                document.getElementById('current-location').textContent = data.location;
+                document.getElementById('weather-icon').src = data.icon_url;
+                document.getElementById('weather-description').textContent = data.weather;
+                document.getElementById('current-wifi').textContent = data.wifi_ssid || 'Not available';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('current-location').textContent = 'Error fetching data';
+            });
+        }
+
+        function fetchLatencyData() {
+            fetch("{% url 'get_latency_data' %}")  // Make sure this URL matches your view
+            .then(response => response.json())
+            .then(data => {
+                const ctx = document.getElementById('latencyChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: Array.from({length: data.latency.length}, (_, i) => i + 1),  // X-axis labels (samples)
+                        datasets: [{
+                            label: 'Network Latency (ms)',
+                            data: data.latency,  // Y-axis values
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching latency data:', error));
+        }
+
+        window.onload = function() {
+            fetchWeatherData();
+            setInterval(fetchWeatherData, 1800000); // Update weather data every 30 minutes
+            fetchLatencyData(); // Fetch latency data when the page loads
+            setInterval(fetchLatencyData, 60000); // Update latency data every minute
+        }
+    </script>
+</head>
+<body class="min-h-full"></body>
+   
+    <!-- Navbar Section -->
+    <div class="navbar-section">
+        <nav class="bg-gray-800 fixed top-0 inset-x-0 z-10">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+                <div class="flex h-16 items-center justify-between">
+                    <!-- Welcome message positioned absolutely -->
+                    <div class="absolute left-4 flex items-center">
+                        <span class="text-white">Welcome, {{ user.username }}</span>
+                    </div>
+                    <!-- Logout link -->
+                    <div class="flex-shrink-0 ml-auto">
+                        <a href="#" onclick="logoutUser()" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+
+
+    <!-- Main Content Section -->
+    <div class="main-content-section mt-16">
+        <header class="bg-gray-800 bg-opacity-80 shadow-lg rounded-lg">
+            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                <h1 class="text-3xl font-bold tracking-tight text-gray-100">{{ user.username }}'s Dashboard</h1>
+            </div>
+        </header>
+
+        <main>
+            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                <div class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                    <!-- Temperature Card -->
+                    <div class="bg-gray-800 bg-opacity-80 shadow overflow-hidden sm:rounded-lg">
+                        <div class="px-4 py-5 sm:px-6">
+                            <h3 class="text-lg font-medium leading-6 text-gray-100">Temperature</h3>
+                        </div>
+                        <div class="border-t border-gray-700">
+                            <dl>
+                                <div class="bg-gray-900 bg-opacity-70 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-gray-400">Current Temperature</dt>
+                                    <dd class="mt-1 text-sm text-gray-100 sm:col-span-2 sm:mt-0">
+                                        <span id="temperature-value" class="text-3xl font-semibold text-red-400">28</span>°C
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                    <!-- Wi-Fi Card -->
+                    <div class="bg-gray-800 bg-opacity-80 shadow overflow-hidden sm:rounded-lg">
+                        <div class="px-4 py-5 sm:px-6">
+                            <h3 class="text-lg font-medium leading-6 text-gray-100">Wi-Fi SSID</h3>
+                        </div>
+                        <div class="border-t border-gray-700">
+                            <dl>
+                                <div class="bg-gray-900 bg-opacity-70 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-gray-400">Wi-Fi SSID</dt>
+                                    <dd class="mt-1 text-sm text-gray-100 sm:col-span-2 sm:mt-0" id="current-wifi">
+                                        <span id="current-wifi-value" class="text-lg font-semibold text-gray-100">Wi-Fi SSID: Loading...</span>
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                    <!-- Location Card -->
+                    <div class="bg-gray-800 bg-opacity-80 shadow overflow-hidden sm:rounded-lg">
+                        <div class="px-4 py-5 sm:px-6">
+                            <h3 class="text-lg font-medium leading-6 text-gray-100">Location</h3>
+                        </div>
+                        <div class="border-t border-gray-700">
+                            <dl>
+                                <div class="bg-gray-900 bg-opacity-70 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-gray-400">Current Location</dt>
+                                    <dd class="mt-1 text-sm text-gray-100 sm:col-span-2 sm:mt-0" id="current-location">Location: Loading...</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                    <!-- Weather Info Card -->
+                    <div class="bg-gray-800 bg-opacity-80 shadow overflow-hidden sm:rounded-lg">
+                        <div class="px-4 py-6 sm:px-8">
+                            <h3 class="text-xl font-semibold leading-6 text-gray-100 text-center">Weather Info</h3>
+                        </div>
+                        <div class="border-t border-gray-700">
+                            <dl>
+                                <div class="bg-gray-900 bg-opacity-70 px-6 py-8 sm:grid sm:grid-cols-1 sm:px-8 text-center">
+                                    <dd class="mt-1 text-lg text-gray-100">
+                                        <img id="weather-icon" src="" alt="Weather Icon" class="inline h-30 w-30 mb-4">
+                                        <div id="weather-description" class="text-xl font-medium">Sunny</div>
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Wi-Fi Card -->
+                    <!-- <div class="bg-gray-800 bg-opacity-80 shadow overflow-hidden sm:rounded-lg">
+                        <div class="px-4 py-5 sm:px-6">
+                            <h3 class="text-lg font-medium leading-6 text-gray-100">Wi-Fi SSID</h3>
+                        </div>
+                        <div class="border-t border-gray-700">
+                            <dl>
+                                <div class="bg-gray-900 bg-opacity-70 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-gray-400">Wi-Fi SSID</dt>
+                                    <dd class="mt-1 text-sm text-gray-100 sm:col-span-2 sm:mt-0" id="current-wifi">Wi-Fi SSID: Loading...</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div> -->
+
+                    <!-- Network Latency Card -->
+                    <div class="bg-gray-800 bg-opacity-80 shadow overflow-hidden sm:rounded-lg">
+                        <div class="px-4 py-5 sm:px-6">
+                            <h3 class="text-lg font-medium leading-6 text-white">Network Latency</h3>
+                        </div>
+                        <div class="border-t border-gray-700">
+                            <dl>
+                                <div class="bg-gray-900 bg-opacity-70 px-4 py-5 sm:px-6">
+                                    <canvas id="latencyChart" width="400" height="200"></canvas>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
